@@ -232,6 +232,8 @@ def clear_rows(grid, locked):
                 newKey = (x, y + inc)
                 locked[newKey] = locked.pop(key)
 
+def max_score():
+    pass
 
 # Checks if pieces or list go past the top of the screen.
 def check_lost(positions):
@@ -247,7 +249,8 @@ def draw_window(surface,grid):
 
 def main ():
     global grid
- 
+    
+    last_score = max_score()
     locked_positions = {}  # (x,y):(255,0,0)
     grid = create_grid(locked_positions)
  
@@ -257,6 +260,8 @@ def main ():
     next_piece = get_shape()
     clock = pygame.time.Clock()
     fall_time = 0
+    level_time = 0
+    score=0
  
     while run:
         fall_speed = 0.27
@@ -264,6 +269,13 @@ def main ():
         grid = create_grid(locked_positions)
         fall_time += clock.get_rawtime()
         clock.tick()
+
+        level_time += clock.get_rawtime()
+
+        if level_time/1000 > 5:
+            level_time = 0
+        if level_time > 0.12:
+            level_time -= 0.005
     
         # PIECE FALLING CODE
         if fall_time/1000 >= fall_speed:
@@ -316,6 +328,9 @@ def main ():
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
+            score += clear_rows(grid, locked_positions) * 10
+
+        clear_rows(grid, locked_positions)
 
         draw_window(win,grid)
 
