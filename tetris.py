@@ -10,6 +10,9 @@ play_width = 300
 play_height = 600
 block_size = 30
 
+top_left_x = (s_width - play_width) // 2
+top_left_y = s_height - play_height
+
 
 # Shapes of pieces
 S = [['.....',
@@ -114,10 +117,16 @@ T = [['.....',
       '..0..',
       '.....']]
 shapes = [S, Z, I, O, J, L, T]
-shape_colors = [(0, 255, 0), (255, 0, 0), (0, 255, 255), (255, 255, 0), (255, 165, 0), (0, 0, 255), (128, 0, 128)]
+shape_colors = [
+    (0, 255, 0), 
+    (255, 0, 0), 
+    (0, 255, 255), 
+    (255, 255, 0), 
+    (255, 165, 0), 
+    (0, 0, 255), 
+    (128, 0, 128),
+]
 
-top_left_x = (s_width - play_width) // 2
-top_left_y = s_height - play_height
 
 
 
@@ -129,7 +138,7 @@ class Piece(object):
         self.x = column
         self.y = row
         self.shape = shape
-        self.color = shape_colors(shapes.index(shape))
+        self.color = shape_colors[shapes.index(shape)]
         self.rotataion = 0 
 
 # makes gird and locks postion so pieces don't go off grid
@@ -167,6 +176,7 @@ def convert_shape_format(shape):
             if column == '0':
                 positions.append((shape.x + j, shape.y + i))
  
+    # Removes offset so pieces are in correct positon
     for i, pos in enumerate(positions):
         positions[i] = (pos[0] - 2, pos[1] - 4)
  
@@ -185,15 +195,33 @@ def valid_space(shape, grid):
     return True
 
 
-def draw_window(surface):
-    pass
+def draw_next_shape(shape, surface):
+    font = pygame.font.SysFont('comicsans', 30)
+    label = font.render('Next Shape', 1, (255,255,255))
 
+    sx = top_left_x + play_width + 50
+    sy = top_left_y + play_height/2 - 100
+    format = shape.shape[shape.rotation % len(shape.shape)]
+
+    for i, line in enumerate(format):
+        row = list(line)
+        for j, column in enumerate(row):
+            if column == '0':
+                pygame.draw.rect(surface, shape.color, (sx + j*30, sy + i*30, 30, 30), 0)
+
+    surface.blit(label, (sx + 10, sy- 30))
+
+# Checks if pieces or list go past the top of the screen.
 def check_lost(positions):
     for pos in positions:
         x, y = pos
         if y < 1:
             return True
     return False
+
+def draw_window(surface):
+    pass
+
 
 def main ():
     global grid
