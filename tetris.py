@@ -139,7 +139,7 @@ class Piece(object):
         self.y = row
         self.shape = shape
         self.color = shape_colors[shapes.index(shape)]
-        self.rotataion = 0 
+        self.rotation = 0 
 
 # makes gird and locks postion so pieces don't go off grid
 def create_grid(locked_positions={}):
@@ -211,6 +211,28 @@ def draw_next_shape(shape, surface):
 
     surface.blit(label, (sx + 10, sy- 30))
 
+
+def clear_rows(grid, locked):
+    inc = 0
+    for i in range(len(grid)-1,-1,-1):
+        row = grid[i]
+        if (0, 0, 0) not in row:
+            inc += 1
+            # add positions to remove from locked
+            ind = i
+            for j in range(len(row)):
+                try:
+                    del locked[(j, i)]
+                except:
+                    continue
+    if inc > 0:
+        for key in sorted(list(locked), key=lambda x: x[1])[::-1]:
+            x, y = key
+            if y < ind:
+                newKey = (x, y + inc)
+                locked[newKey] = locked.pop(key)
+
+
 # Checks if pieces or list go past the top of the screen.
 def check_lost(positions):
     for pos in positions:
@@ -219,7 +241,7 @@ def check_lost(positions):
             return True
     return False
 
-def draw_window(surface):
+def draw_window(surface,grid):
     pass
 
 
@@ -279,7 +301,7 @@ def main ():
                     if not valid_space(current_piece, grid):
                         current_piece.y -= 1
 
-                shape_pos = convert_shape_format(current_piece)
+        shape_pos = convert_shape_format(current_piece)
 
         # add color of piece to the grid for drawing
         for i in range(len(shape_pos)):
@@ -296,6 +318,9 @@ def main ():
             change_piece = False
 
         draw_window(win,grid)
+
+        draw_next_shape(next_piece, win)
+        pygame.display.update()
 
         if check_lost(locked_positions):
             run = False
